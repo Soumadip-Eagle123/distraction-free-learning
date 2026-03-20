@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProgress } from "../api";
 
-function Sidebar({ courses, setCurrent, current }) {
+function Sidebar({ courses, setCurrent, current, userEmail, onLogout }) {
   const [progressMap, setProgressMap] = useState({});
   const [expanded, setExpanded] = useState({});
 
@@ -90,12 +90,10 @@ function Sidebar({ courses, setCurrent, current }) {
                 </div>
               </div>
 
-              {/* Course mini progress bar */}
               <div className="course-mini-track">
                 <div className="course-mini-fill" style={{ width: `${stats.pct}%` }} />
               </div>
 
-              {/* Video List */}
               {isOpen && (
                 <div className="video-list">
                   {course.videos.map((video, idx) => {
@@ -128,9 +126,7 @@ function Sidebar({ courses, setCurrent, current }) {
                         <span className="video-label">
                           {String(idx + 1).padStart(2, '0')}
                         </span>
-                        {isRevised && (
-                          <span className="revised-tag">R</span>
-                        )}
+                        {isRevised && <span className="revised-tag">R</span>}
                       </div>
                     );
                   })}
@@ -139,6 +135,21 @@ function Sidebar({ courses, setCurrent, current }) {
             </div>
           );
         })}
+      </div>
+
+      {/* User Footer */}
+      <div className="sidebar-footer">
+        <div className="user-info">
+          <div className="user-avatar">
+            {userEmail?.[0]?.toUpperCase()}
+          </div>
+          <span className="user-email">{userEmail}</span>
+        </div>
+        <button className="logout-btn" onClick={onLogout} title="Sign out">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   );
