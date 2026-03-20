@@ -3,6 +3,7 @@ import { getCourses, getProgress, updateProgress } from "./api";
 import Sidebar from "./components/Sidebar";
 import Player from "./components/Player";
 import AuthPage from "./components/AuthPage";
+import Pomodoro from "./components/Pomodoro";
 
 function App() {
   const [courses, setCourses] = useState([]);
@@ -19,7 +20,7 @@ function App() {
         setCourses(res.data);
         setCurrent(res.data[0]?.videos[0]);
       })
-      .catch(() => handleLogout()); // token expired
+      .catch(() => handleLogout());
   }, [userEmail]);
 
   useEffect(() => {
@@ -42,9 +43,7 @@ function App() {
     setCurrent(null);
   };
 
-  const handleAuth = (email) => {
-    setUserEmail(email);
-  };
+  const handleAuth = (email) => setUserEmail(email);
 
   if (!isAuthed || !userEmail) {
     return <AuthPage onAuth={handleAuth} />;
@@ -59,7 +58,10 @@ function App() {
         userEmail={userEmail}
         onLogout={handleLogout}
       />
-      <Player current={current} progress={progress} toggle={toggle} />
+      <div className="main-area">
+        <Player current={current} progress={progress} toggle={toggle} />
+        <Pomodoro />
+      </div>
     </div>
   );
 }
