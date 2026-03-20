@@ -1,2 +1,4 @@
 backend/.env
-node_modulesbackend/.env
+node_modules
+backend/progress.db
+.env
