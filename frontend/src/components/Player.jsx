@@ -33,7 +33,8 @@ function Player({ current, progress, toggle }) {
   const pollRef = useRef(null);
   const currentIdRef = useRef(null);
   const [resumed, setResumed] = useState(false);
-
+  const progressRef = useRef(progress);
+useEffect(() => { progressRef.current = progress; }, [progress]);
   const watchedAt = progress?.watched_seconds || 0;
 
   // Build/rebuild YT player whenever video changes
@@ -60,11 +61,11 @@ function Player({ current, progress, toggle }) {
           rel: 0,
           modestbranding: 1,
           color: "white",
-          start: Math.floor(progress?.watched_seconds || 0),
+          start: 0,
         },
         events: {
           onReady: (e) => {
-            const savedAt = progress?.watched_seconds || 0;
+            const savedAt = progressRef.current?.watched_seconds || 0;
             if (savedAt > 5) {
               e.target.seekTo(savedAt, true);
               setResumed(true);
