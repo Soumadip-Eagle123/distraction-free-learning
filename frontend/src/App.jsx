@@ -8,7 +8,7 @@ import Pomodoro from "./components/Pomodoro";
 function App() {
   const [courses, setCourses] = useState([]);
   const [current, setCurrent] = useState(null);
-  const [progress, setProgress] = useState({ done: 0, revised: 0, watched_seconds: 0 });
+  const [progress, setProgress] = useState({ done: 0, revised: 0 });
   const [progressMap, setProgressMap] = useState({});
   const [userEmail, setUserEmail] = useState(() => localStorage.getItem("email"));
 
@@ -36,7 +36,7 @@ function App() {
 
   useEffect(() => {
     if (!current) return;
-    setProgress({ done: 0, revised: 0, watched_seconds: 0 });
+    setProgress({ done: 0, revised: 0 });
 
     if (progressMap[current.id] !== undefined) {
       setProgress(progressMap[current.id]);
@@ -52,12 +52,7 @@ function App() {
     const updated = { ...progress, [field]: progress[field] ? 0 : 1 };
     setProgress(updated);
     setProgressMap(prev => ({ ...prev, [current.id]: updated }));
-    updateProgress({
-      videoId: current.id,
-      done: updated.done,
-      revised: updated.revised,
-      watchedSeconds: updated.watched_seconds || 0,
-    });
+    updateProgress({ videoId: current.id, done: updated.done, revised: updated.revised });
   };
 
   const handleLogout = () => {

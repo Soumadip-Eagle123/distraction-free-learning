@@ -14,8 +14,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ── Auth Routes ──────────────────────────────────────────
-
 app.post("/auth/register", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -57,8 +55,6 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-// ── Protected Routes ─────────────────────────────────────
-
 app.get("/courses", authMiddleware, (req, res) => {
   res.json(courses);
 });
@@ -66,10 +62,10 @@ app.get("/courses", authMiddleware, (req, res) => {
 app.get("/progress/:id", authMiddleware, async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT done, revised, watched_seconds FROM progress WHERE user_id = $1 AND video_id = $2",
+      "SELECT done, revised FROM progress WHERE user_id = $1 AND video_id = $2",
       [req.userId, req.params.id]
     );
-    res.json(rows[0] || { done: 0, revised: 0, watched_seconds: 0 });
+    res.json(rows[0] || { done: 0, revised: 0 });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "DB error" });
@@ -77,14 +73,14 @@ app.get("/progress/:id", authMiddleware, async (req, res) => {
 });
 
 app.post("/progress", authMiddleware, async (req, res) => {
-  const { videoId, done, revised, watchedSeconds = 0 } = req.body;
+  const { videoId, done, revised } = req.body;
   try {
     await pool.query(
-      `INSERT INTO progress (user_id, video_id, done, revised, watched_seconds)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO progress (user_id, video_id, done, revised)
+       VALUES ($1, $2, $3, $4)
        ON CONFLICT (user_id, video_id)
-       DO UPDATE SET done = $3, revised = $4, watched_seconds = $5`,
-      [req.userId, videoId, done, revised, watchedSeconds]
+       DO UPDATE SET done = $3, revised = $4`,
+      [req.userId, videoId, done, revised]
     );
     res.sendStatus(200);
   } catch (err) {
@@ -92,26 +88,6 @@ app.post("/progress", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "DB error" });
   }
 });
-
-// Lightweight route — only saves watch position, no done/revised change
-app.post("/progress/watch", authMiddleware, async (req, res) => {
-  const { videoId, watchedSeconds } = req.body;
-  try {
-    await pool.query(
-      `INSERT INTO progress (user_id, video_id, done, revised, watched_seconds)
-       VALUES ($1, $2, 0, 0, $3)
-       ON CONFLICT (user_id, video_id)
-       DO UPDATE SET watched_seconds = $3`,
-      [req.userId, videoId, watchedSeconds]
-    );
-    res.sendStatus(200);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "DB error" });
-  }
-});
-
-// ── Start ────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 5000;
 
