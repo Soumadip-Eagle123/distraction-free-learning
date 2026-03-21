@@ -22,3 +22,6 @@ export const getProgress = (id) =>
 
 export const updateProgress = (data) =>
   axios.post(`${API}/progress`, data, authHeaders());
+
+export const saveWatchPosition = (videoId, watchedSeconds) =>
+  axios.post(`${API}/progress/watch`, { videoId, watchedSeconds }, authHeaders());

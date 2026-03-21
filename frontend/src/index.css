@@ -773,3 +773,43 @@ body {
   width: 22px;
   text-align: right;
 }
+
+/* ─── WATCH POSITION ─── */
+.resume-toast {
+  position: absolute;
+  top: -44px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-2);
+  border: 1px solid var(--border-hover);
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 12px;
+  color: var(--accent-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.3s ease 2.7s forwards;
+  z-index: 10;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.watch-position {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.player-wrapper {
+  position: relative;
+}

@@ -8,13 +8,12 @@ import Pomodoro from "./components/Pomodoro";
 function App() {
   const [courses, setCourses] = useState([]);
   const [current, setCurrent] = useState(null);
-  const [progress, setProgress] = useState({ done: 0, revised: 0 });
+  const [progress, setProgress] = useState({ done: 0, revised: 0, watched_seconds: 0 });
   const [progressMap, setProgressMap] = useState({});
   const [userEmail, setUserEmail] = useState(() => localStorage.getItem("email"));
 
   const isAuthed = !!localStorage.getItem("token");
 
-  // Load courses + all progress on mount
   useEffect(() => {
     if (!isAuthed) return;
     getCourses()
@@ -35,30 +34,30 @@ function App() {
       .catch(() => handleLogout());
   }, [userEmail]);
 
-  // When current video changes — immediately reset progress,
-  // then load from map (or DB if not in map yet)
   useEffect(() => {
     if (!current) return;
-
-    // Reset immediately so previous video's state doesn't bleed through
-    setProgress({ done: 0, revised: 0 });
+    setProgress({ done: 0, revised: 0, watched_seconds: 0 });
 
     if (progressMap[current.id] !== undefined) {
       setProgress(progressMap[current.id]);
     } else {
-      // Not in map yet, fetch from DB
       getProgress(current.id).then(res => {
         setProgress(res.data);
         setProgressMap(prev => ({ ...prev, [current.id]: res.data }));
       });
     }
-  }, [current?.id]); // only re-run when the video ID changes
+  }, [current?.id]);
 
   const toggle = (field) => {
     const updated = { ...progress, [field]: progress[field] ? 0 : 1 };
     setProgress(updated);
     setProgressMap(prev => ({ ...prev, [current.id]: updated }));
-    updateProgress({ videoId: current.id, ...updated });
+    updateProgress({
+      videoId: current.id,
+      done: updated.done,
+      revised: updated.revised,
+      watchedSeconds: updated.watched_seconds || 0,
+    });
   };
 
   const handleLogout = () => {
