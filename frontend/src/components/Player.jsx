@@ -4,19 +4,20 @@ import { saveWatchPosition } from "../api";
 // Load YouTube IFrame API once globally
 function loadYTAPI() {
   if (window.YT && window.YT.Player) return Promise.resolve();
-  return new Promise((resolve) => {
-    if (window._ytAPILoading) {
-      const check = setInterval(() => {
-        if (window.YT && window.YT.Player) { clearInterval(check); resolve(); }
-      }, 100);
-      return;
-    }
-    window._ytAPILoading = true;
+  if (window._ytAPIPromise) return window._ytAPIPromise;
+  
+  window._ytAPIPromise = new Promise((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      resolve();
+    };
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = resolve;
   });
+  
+  return window._ytAPIPromise;
 }
 
 function formatWatched(seconds) {

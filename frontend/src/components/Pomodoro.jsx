@@ -46,12 +46,20 @@ function extractYouTubeId(url) {
 // Load YouTube IFrame API once
 function loadYTAPI() {
   if (window.YT && window.YT.Player) return Promise.resolve();
-  return new Promise((resolve) => {
+  if (window._ytAPIPromise) return window._ytAPIPromise;
+  
+  window._ytAPIPromise = new Promise((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      resolve();
+    };
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
-    window.onYouTubeIframeAPIReady = resolve;
   });
+  
+  return window._ytAPIPromise;
 }
 
 export default function Pomodoro() {
