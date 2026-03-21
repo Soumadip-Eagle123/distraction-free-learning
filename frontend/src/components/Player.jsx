@@ -65,11 +65,14 @@ function Player({ current, progress, toggle, progressLoaded }) {
         },
         events: {
           onReady: (e) => {
-            if (savedAt > 5) {
-              e.target.seekTo(savedAt, true);
-              setResumed(true);
-              setTimeout(() => setResumed(false), 3000);
-            }
+  if (savedAt > 5) {
+    e.target.playVideo();           // start playing first
+    setTimeout(() => {
+      e.target.seekTo(savedAt, true); // then seek after a small delay
+      setResumed(true);
+      setTimeout(() => setResumed(false), 3000);
+    }, 1000);
+  }
 
             // Poll every 30s to save position
             pollRef.current = setInterval(() => {
