@@ -3,27 +3,22 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const DEFAULT_FOCUS = 25;
 const DEFAULT_BREAK = 5;
 
-// Generate a pleasant bell/chime sound using Web Audio API
 function playChime(type = "focus") {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
-
   const notes = type === "focus"
-    ? [523.25, 659.25, 783.99, 1046.50] // C5 E5 G5 C6 — bright, done!
-    : [1046.50, 783.99, 659.25, 523.25]; // reverse — gentle, break over
+    ? [523.25, 659.25, 783.99, 1046.50]
+    : [1046.50, 783.99, 659.25, 523.25];
 
   notes.forEach((freq, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-
     osc.type = "sine";
     osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
-
     gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
     gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + i * 0.18 + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.5);
-
     osc.start(ctx.currentTime + i * 0.18);
     osc.stop(ctx.currentTime + i * 0.18 + 0.5);
   });
@@ -35,20 +30,41 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
+function extractYouTubeId(url) {
+  if (!url) return null;
+  const patterns = [
+    /(?:v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:embed\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
 export default function Pomodoro() {
   const [focusMin, setFocusMin] = useState(DEFAULT_FOCUS);
   const [breakMin, setBreakMin] = useState(DEFAULT_BREAK);
-  const [mode, setMode] = useState("focus"); // "focus" | "break"
+  const [mode, setMode] = useState("focus");
   const [secondsLeft, setSecondsLeft] = useState(DEFAULT_FOCUS * 60);
   const [running, setRunning] = useState(false);
   const [editing, setEditing] = useState(false);
   const [sessions, setSessions] = useState(0);
   const [flash, setFlash] = useState(false);
 
+  // White noise
+  const [noiseUrl, setNoiseUrl] = useState("");
+  const [noiseInput, setNoiseInput] = useState("");
+  const [noiseOpen, setNoiseOpen] = useState(false);
+  const [noisePlaying, setNoisePlaying] = useState(false);
+  const noiseVideoId = extractYouTubeId(noiseUrl);
+
   const intervalRef = useRef(null);
   const totalSeconds = mode === "focus" ? focusMin * 60 : breakMin * 60;
   const progress = 1 - secondsLeft / totalSeconds;
-  const circumference = 2 * Math.PI * 54; // radius=54
+  const circumference = 2 * Math.PI * 54;
 
   const switchMode = useCallback((newMode) => {
     setRunning(false);
@@ -100,75 +116,60 @@ export default function Pomodoro() {
     setEditing(false);
   };
 
+  const applyNoise = () => {
+    const id = extractYouTubeId(noiseInput);
+    if (id) {
+      setNoiseUrl(noiseInput);
+      setNoisePlaying(true);
+      setNoiseOpen(false);
+    }
+  };
+
+  const clearNoise = () => {
+    setNoiseUrl("");
+    setNoiseInput("");
+    setNoisePlaying(false);
+  };
+
   const dashOffset = circumference * (1 - progress);
   const isLow = secondsLeft <= 60 && running;
 
   return (
     <div className={`pomo-panel ${flash ? "pomo-flash" : ""}`}>
+
       {/* Mode tabs */}
       <div className="pomo-tabs">
-        <button
-          className={`pomo-tab ${mode === "focus" ? "active-focus" : ""}`}
-          onClick={() => !running && switchMode("focus")}
-        >
-          Focus
-        </button>
-        <button
-          className={`pomo-tab ${mode === "break" ? "active-break" : ""}`}
-          onClick={() => !running && switchMode("break")}
-        >
-          Break
-        </button>
+        <button className={`pomo-tab ${mode === "focus" ? "active-focus" : ""}`} onClick={() => !running && switchMode("focus")}>Focus</button>
+        <button className={`pomo-tab ${mode === "break" ? "active-break" : ""}`} onClick={() => !running && switchMode("break")}>Break</button>
       </div>
 
-      {/* Ring timer */}
+      {/* Ring */}
       <div className="pomo-ring-wrap">
         <svg className="pomo-svg" viewBox="0 0 120 120">
-          {/* Track */}
+          <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="5"/>
           <circle
-            cx="60" cy="60" r="54"
-            fill="none"
-            stroke="rgba(255,255,255,0.05)"
-            strokeWidth="5"
-          />
-          {/* Progress */}
-          <circle
-            cx="60" cy="60" r="54"
-            fill="none"
-            stroke={mode === "focus"
-              ? (isLow ? "#f87171" : "#6366f1")
-              : "#22d3a5"}
-            strokeWidth="5"
-            strokeLinecap="round"
+            cx="60" cy="60" r="54" fill="none"
+            stroke={mode === "focus" ? (isLow ? "#f87171" : "#6366f1") : "#22d3a5"}
+            strokeWidth="5" strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
-            style={{
-              transform: "rotate(-90deg)",
-              transformOrigin: "center",
-              transition: "stroke-dashoffset 0.9s linear, stroke 0.3s ease"
-            }}
+            style={{ transform: "rotate(-90deg)", transformOrigin: "center", transition: "stroke-dashoffset 0.9s linear, stroke 0.3s ease" }}
           />
         </svg>
-
         <div className="pomo-time-wrap">
-          <span className={`pomo-time ${isLow ? "pomo-time-low" : ""}`}>
-            {formatTime(secondsLeft)}
-          </span>
-          <span className="pomo-mode-label">
-            {mode === "focus" ? "Focus" : "Break"}
-          </span>
+          <span className={`pomo-time ${isLow ? "pomo-time-low" : ""}`}>{formatTime(secondsLeft)}</span>
+          <span className="pomo-mode-label">{mode === "focus" ? "Focus" : "Break"}</span>
         </div>
       </div>
 
       {/* Controls */}
       <div className="pomo-controls">
-        <button className="pomo-ctrl-btn pomo-reset" onClick={reset} title="Reset">
+        <button className="pomo-ctrl-btn" onClick={reset} title="Reset">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M2 6.5A4.5 4.5 0 1 1 6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             <path d="M2 3.5V6.5H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-
         <button className="pomo-play-btn" onClick={toggle}>
           {running ? (
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -181,8 +182,7 @@ export default function Pomodoro() {
             </svg>
           )}
         </button>
-
-        <button className="pomo-ctrl-btn pomo-settings" onClick={() => { setRunning(false); setEditing(e => !e); }} title="Settings">
+        <button className="pomo-ctrl-btn" onClick={() => { setRunning(false); setEditing(e => !e); setNoiseOpen(false); }} title="Settings">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <circle cx="6.5" cy="6.5" r="2" stroke="currentColor" strokeWidth="1.4"/>
             <path d="M6.5 1v1.5M6.5 10.5V12M1 6.5h1.5M10.5 6.5H12M2.93 2.93l1.06 1.06M9.01 9.01l1.06 1.06M2.93 10.07l1.06-1.06M9.01 3.99l1.06-1.06" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
@@ -190,7 +190,7 @@ export default function Pomodoro() {
         </button>
       </div>
 
-      {/* Sessions count */}
+      {/* Sessions */}
       <div className="pomo-sessions">
         {Array.from({ length: Math.min(sessions, 8) }).map((_, i) => (
           <div key={i} className="pomo-session-dot" />
@@ -198,14 +198,102 @@ export default function Pomodoro() {
         {sessions === 0 && <span className="pomo-sessions-empty">No sessions yet</span>}
       </div>
 
+      {/* Divider */}
+      <div className="pomo-divider" />
+
+      {/* White Noise Section */}
+      <div className="pomo-noise-section">
+        <div className="pomo-noise-header">
+          <div className="pomo-noise-title">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 9V4l4-2 4 2v5l-4 2-4-2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+              <path d="M6 2v9M2 6.5h8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+            <span>White Noise</span>
+          </div>
+          <div className="pomo-noise-actions">
+            {noiseVideoId && (
+              <button
+                className={`pomo-noise-toggle ${noisePlaying ? "playing" : ""}`}
+                onClick={() => setNoisePlaying(p => !p)}
+                title={noisePlaying ? "Pause" : "Play"}
+              >
+                {noisePlaying ? (
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <rect x="1.5" y="1" width="2.5" height="8" rx="0.8" fill="currentColor"/>
+                    <rect x="6" y="1" width="2.5" height="8" rx="0.8" fill="currentColor"/>
+                  </svg>
+                ) : (
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2.5 1.5L8.5 5L2.5 8.5V1.5Z" fill="currentColor"/>
+                  </svg>
+                )}
+              </button>
+            )}
+            {noiseVideoId && (
+              <button className="pomo-noise-clear" onClick={clearNoise} title="Remove">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 2L8 8M8 2L2 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              </button>
+            )}
+            <button
+              className="pomo-noise-add"
+              onClick={() => { setNoiseOpen(o => !o); setEditing(false); }}
+              title="Add YouTube URL"
+            >
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Status */}
+        {noiseVideoId && (
+          <div className={`pomo-noise-status ${noisePlaying ? "status-playing" : "status-paused"}`}>
+            <div className={`pomo-noise-dot ${noisePlaying ? "dot-playing" : ""}`} />
+            <span>{noisePlaying ? "Playing" : "Paused"}</span>
+          </div>
+        )}
+
+        {!noiseVideoId && !noiseOpen && (
+          <p className="pomo-noise-empty">Paste a YouTube URL to play white noise while you study</p>
+        )}
+
+        {/* URL input */}
+        {noiseOpen && (
+          <div className="pomo-noise-input-wrap">
+            <input
+              className="pomo-noise-input"
+              type="text"
+              placeholder="youtube.com/watch?v=..."
+              value={noiseInput}
+              onChange={e => setNoiseInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && applyNoise()}
+              autoFocus
+            />
+            <div className="pomo-noise-btns">
+              <button className="pomo-settings-cancel" onClick={() => setNoiseOpen(false)}>Cancel</button>
+              <button className="pomo-settings-apply" onClick={applyNoise}>Play</button>
+            </div>
+          </div>
+        )}
+
+        {/* Hidden iframe player */}
+        {noiseVideoId && noisePlaying && (
+          <iframe
+            key={noiseVideoId}
+            src={`https://www.youtube-nocookie.com/embed/${noiseVideoId}?autoplay=1&loop=1&playlist=${noiseVideoId}&controls=0&rel=0&modestbranding=1`}
+            allow="autoplay"
+            style={{ position: "absolute", width: "1px", height: "1px", opacity: 0, pointerEvents: "none", top: 0, left: 0 }}
+          />
+        )}
+      </div>
+
       {/* Settings panel */}
       {editing && (
-        <SettingsPanel
-          focusMin={focusMin}
-          breakMin={breakMin}
-          onApply={applySettings}
-          onClose={() => setEditing(false)}
-        />
+        <SettingsPanel focusMin={focusMin} breakMin={breakMin} onApply={applySettings} onClose={() => setEditing(false)} />
       )}
     </div>
   );

@@ -578,3 +578,145 @@ body {
   font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.12s;
 }
 .pomo-settings-apply:hover { background: var(--accent-light); }
+
+/* ─── POMODORO WHITE NOISE ─── */
+.pomo-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+}
+
+.pomo-noise-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pomo-noise-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pomo-noise-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.pomo-noise-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pomo-noise-toggle,
+.pomo-noise-clear,
+.pomo-noise-add {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.pomo-noise-toggle:hover,
+.pomo-noise-add:hover {
+  background: var(--surface-2);
+  border-color: var(--border-hover);
+  color: var(--text-secondary);
+}
+
+.pomo-noise-toggle.playing {
+  background: var(--green-dim);
+  border-color: rgba(34,211,165,0.3);
+  color: var(--green);
+}
+
+.pomo-noise-clear:hover {
+  background: var(--red-dim);
+  border-color: rgba(248,113,113,0.2);
+  color: var(--red);
+}
+
+.pomo-noise-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  border-radius: 6px;
+  padding: 5px 8px;
+  transition: all 0.2s;
+}
+
+.status-playing {
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(34,211,165,0.2);
+}
+
+.status-paused {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.pomo-noise-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.dot-playing {
+  animation: blink 1.5s ease infinite;
+}
+
+.pomo-noise-empty {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.pomo-noise-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeDown 0.15s ease;
+}
+
+.pomo-noise-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.pomo-noise-input::placeholder { color: var(--text-muted); }
+.pomo-noise-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+
+.pomo-noise-btns {
+  display: flex;
+  gap: 6px;
+}
