@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { saveWatchPosition } from "../api";
 
-// Load YouTube IFrame API once globally
 function loadYTAPI() {
   if (window.YT && window.YT.Player) return Promise.resolve();
   if (window._ytAPIPromise) return window._ytAPIPromise;
-  
+
   window._ytAPIPromise = new Promise((resolve) => {
     const prev = window.onYouTubeIframeAPIReady;
     window.onYouTubeIframeAPIReady = () => {
@@ -16,7 +15,7 @@ function loadYTAPI() {
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
   });
-  
+
   return window._ytAPIPromise;
 }
 
@@ -27,21 +26,23 @@ function formatWatched(seconds) {
   return `${m}:${s}`;
 }
 
-function Player({ current, progress, toggle }) {
+function Player({ current, progress, toggle, progressLoaded }) {
   const containerRef = useRef(null);
   const playerRef = useRef(null);
   const pollRef = useRef(null);
   const currentIdRef = useRef(null);
   const [resumed, setResumed] = useState(false);
-  const progressRef = useRef(progress);
-useEffect(() => { progressRef.current = progress; }, [progress]);
+
   const watchedAt = progress?.watched_seconds || 0;
 
-  // Build/rebuild YT player whenever video changes
   useEffect(() => {
-    if (!current) return;
+    // Don't build player until progress is fully loaded from DB
+    if (!current || !progressLoaded) return;
+
     setResumed(false);
     currentIdRef.current = current.id;
+
+    const savedAt = Math.floor(progress?.watched_seconds || 0);
 
     loadYTAPI().then(() => {
       // Destroy old player
@@ -61,22 +62,20 @@ useEffect(() => { progressRef.current = progress; }, [progress]);
           rel: 0,
           modestbranding: 1,
           color: "white",
-          start: 0,
         },
         events: {
           onReady: (e) => {
-            const savedAt = progressRef.current?.watched_seconds || 0;
             if (savedAt > 5) {
               e.target.seekTo(savedAt, true);
               setResumed(true);
               setTimeout(() => setResumed(false), 3000);
             }
-            // Poll every 5s to save position
+
+            // Poll every 30s to save position
             pollRef.current = setInterval(() => {
               try {
                 const state = e.target.getPlayerState();
-                // 1 = playing
-                if (state === 1) {
+                if (state === 1) { // 1 = playing
                   const t = Math.floor(e.target.getCurrentTime());
                   if (t > 0 && currentIdRef.current) {
                     saveWatchPosition(currentIdRef.current, t);
@@ -103,9 +102,9 @@ useEffect(() => { progressRef.current = progress; }, [progress]);
     return () => {
       clearInterval(pollRef.current);
     };
-  }, [current?.id]);
+  }, [current?.id, progressLoaded]);
 
-  // Save position when component unmounts (tab close / navigate away)
+  // Save position on tab close / refresh
   useEffect(() => {
     const handleUnload = () => {
       try {
@@ -149,8 +148,10 @@ useEffect(() => { progressRef.current = progress; }, [progress]);
         {/* Video Frame */}
         <div className="video-frame">
           <div className="frame-glow" />
-          {/* YT player mounts here */}
-          <div ref={containerRef} style={{ width: "100%", height: "100%", borderRadius: "12px", overflow: "hidden" }} />
+          <div
+            ref={containerRef}
+            style={{ width: "100%", height: "100%", borderRadius: "12px", overflow: "hidden" }}
+          />
         </div>
 
         {/* Controls Bar */}
