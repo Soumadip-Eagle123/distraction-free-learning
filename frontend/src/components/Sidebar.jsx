@@ -140,5 +140,4 @@ function Sidebar({ courses, setCurrent, current, progressMap, userEmail, onLogou
   );
 }
 
-import { useEffect, useState } from "react";
 export default Sidebar;
