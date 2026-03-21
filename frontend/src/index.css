@@ -720,3 +720,56 @@ body {
   display: flex;
   gap: 6px;
 }
+
+/* ─── VOLUME SLIDER ─── */
+.pomo-volume-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.pomo-volume-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--border-hover);
+  outline: none;
+  cursor: pointer;
+}
+
+.pomo-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+  box-shadow: 0 0 4px var(--accent-glow);
+}
+
+.pomo-volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+  background: white;
+}
+
+.pomo-volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  cursor: pointer;
+  border: none;
+}
+
+.pomo-volume-val {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  width: 22px;
+  text-align: right;
+}

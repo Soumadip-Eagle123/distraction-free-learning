@@ -8,7 +8,6 @@ function playChime(type = "focus") {
   const notes = type === "focus"
     ? [523.25, 659.25, 783.99, 1046.50]
     : [1046.50, 783.99, 659.25, 523.25];
-
   notes.forEach((freq, i) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -44,6 +43,17 @@ function extractYouTubeId(url) {
   return null;
 }
 
+// Load YouTube IFrame API once
+function loadYTAPI() {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  return new Promise((resolve) => {
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = resolve;
+  });
+}
+
 export default function Pomodoro() {
   const [focusMin, setFocusMin] = useState(DEFAULT_FOCUS);
   const [breakMin, setBreakMin] = useState(DEFAULT_BREAK);
@@ -59,6 +69,10 @@ export default function Pomodoro() {
   const [noiseInput, setNoiseInput] = useState("");
   const [noiseOpen, setNoiseOpen] = useState(false);
   const [noisePlaying, setNoisePlaying] = useState(false);
+  const [volume, setVolume] = useState(50);
+
+  const playerRef = useRef(null);
+  const containerRef = useRef(null);
   const noiseVideoId = extractYouTubeId(noiseUrl);
 
   const intervalRef = useRef(null);
@@ -81,14 +95,8 @@ export default function Pomodoro() {
           if (s <= 1) {
             clearInterval(intervalRef.current);
             setRunning(false);
-            if (mode === "focus") {
-              playChime("focus");
-              setSessions(n => n + 1);
-              switchMode("break");
-            } else {
-              playChime("break");
-              switchMode("focus");
-            }
+            if (mode === "focus") { playChime("focus"); setSessions(n => n + 1); switchMode("break"); }
+            else { playChime("break"); switchMode("focus"); }
             return 0;
           }
           return s - 1;
@@ -100,12 +108,59 @@ export default function Pomodoro() {
     return () => clearInterval(intervalRef.current);
   }, [running, mode, switchMode]);
 
-  const toggle = () => setRunning(r => !r);
+  // Init YT player when video ID is set
+  useEffect(() => {
+    if (!noiseVideoId) return;
 
-  const reset = () => {
-    setRunning(false);
-    setSecondsLeft(mode === "focus" ? focusMin * 60 : breakMin * 60);
-  };
+    loadYTAPI().then(() => {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+
+      playerRef.current = new window.YT.Player(containerRef.current, {
+        videoId: noiseVideoId,
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: noiseVideoId,
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+        },
+        events: {
+          onReady: (e) => {
+            e.target.setVolume(volume);
+            e.target.playVideo();
+            setNoisePlaying(true);
+          },
+        },
+      });
+    });
+
+    return () => {
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+        playerRef.current = null;
+      }
+    };
+  }, [noiseVideoId]);
+
+  // Sync volume changes to player
+  useEffect(() => {
+    if (playerRef.current?.setVolume) {
+      playerRef.current.setVolume(volume);
+    }
+  }, [volume]);
+
+  // Sync play/pause to player
+  useEffect(() => {
+    if (!playerRef.current) return;
+    try {
+      if (noisePlaying) playerRef.current.playVideo();
+      else playerRef.current.pauseVideo();
+    } catch {}
+  }, [noisePlaying]);
 
   const applySettings = (newFocus, newBreak) => {
     setFocusMin(newFocus);
@@ -118,14 +173,16 @@ export default function Pomodoro() {
 
   const applyNoise = () => {
     const id = extractYouTubeId(noiseInput);
-    if (id) {
-      setNoiseUrl(noiseInput);
-      setNoisePlaying(true);
-      setNoiseOpen(false);
-    }
+    if (!id) return;
+    setNoiseUrl(noiseInput);
+    setNoiseOpen(false);
   };
 
   const clearNoise = () => {
+    if (playerRef.current) {
+      try { playerRef.current.destroy(); } catch {}
+      playerRef.current = null;
+    }
     setNoiseUrl("");
     setNoiseInput("");
     setNoisePlaying(false);
@@ -164,13 +221,13 @@ export default function Pomodoro() {
 
       {/* Controls */}
       <div className="pomo-controls">
-        <button className="pomo-ctrl-btn" onClick={reset} title="Reset">
+        <button className="pomo-ctrl-btn" onClick={() => { setRunning(false); setSecondsLeft(mode === "focus" ? focusMin * 60 : breakMin * 60); }} title="Reset">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M2 6.5A4.5 4.5 0 1 1 6.5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             <path d="M2 3.5V6.5H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        <button className="pomo-play-btn" onClick={toggle}>
+        <button className="pomo-play-btn" onClick={() => setRunning(r => !r)}>
           {running ? (
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <rect x="3" y="2" width="3.5" height="12" rx="1" fill="currentColor"/>
@@ -198,16 +255,14 @@ export default function Pomodoro() {
         {sessions === 0 && <span className="pomo-sessions-empty">No sessions yet</span>}
       </div>
 
-      {/* Divider */}
       <div className="pomo-divider" />
 
-      {/* White Noise Section */}
+      {/* White Noise */}
       <div className="pomo-noise-section">
         <div className="pomo-noise-header">
           <div className="pomo-noise-title">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M2 9V4l4-2 4 2v5l-4 2-4-2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-              <path d="M6 2v9M2 6.5h8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              <path d="M1 4.5h2l2-3 2 7 2-5 1 1h2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span>White Noise</span>
           </div>
@@ -237,11 +292,7 @@ export default function Pomodoro() {
                 </svg>
               </button>
             )}
-            <button
-              className="pomo-noise-add"
-              onClick={() => { setNoiseOpen(o => !o); setEditing(false); }}
-              title="Add YouTube URL"
-            >
+            <button className="pomo-noise-add" onClick={() => { setNoiseOpen(o => !o); setEditing(false); }} title="Add YouTube URL">
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
                 <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
@@ -254,6 +305,26 @@ export default function Pomodoro() {
           <div className={`pomo-noise-status ${noisePlaying ? "status-playing" : "status-paused"}`}>
             <div className={`pomo-noise-dot ${noisePlaying ? "dot-playing" : ""}`} />
             <span>{noisePlaying ? "Playing" : "Paused"}</span>
+          </div>
+        )}
+
+        {/* Volume slider */}
+        {noiseVideoId && (
+          <div className="pomo-volume-row">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1 4h2l3-3v10L3 8H1V4z" fill="currentColor" opacity="0.6"/>
+              {volume > 0 && <path d="M8 3.5a3.5 3.5 0 0 1 0 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6"/>}
+              {volume > 50 && <path d="M9.5 2a5.5 5.5 0 0 1 0 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.4"/>}
+            </svg>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={volume}
+              onChange={e => setVolume(Number(e.target.value))}
+              className="pomo-volume-slider"
+            />
+            <span className="pomo-volume-val">{volume}</span>
           </div>
         )}
 
@@ -280,18 +351,13 @@ export default function Pomodoro() {
           </div>
         )}
 
-        {/* Hidden iframe player */}
-        {noiseVideoId && noisePlaying && (
-          <iframe
-            key={noiseVideoId}
-            src={`https://www.youtube-nocookie.com/embed/${noiseVideoId}?autoplay=1&loop=1&playlist=${noiseVideoId}&controls=0&rel=0&modestbranding=1`}
-            allow="autoplay"
-            style={{ position: "absolute", width: "1px", height: "1px", opacity: 0, pointerEvents: "none", top: 0, left: 0 }}
-          />
-        )}
+        {/* YT Player container — hidden visually */}
+        <div
+          ref={containerRef}
+          style={{ position: "absolute", width: "1px", height: "1px", opacity: 0, pointerEvents: "none", top: 0, left: 0 }}
+        />
       </div>
 
-      {/* Settings panel */}
       {editing && (
         <SettingsPanel focusMin={focusMin} breakMin={breakMin} onApply={applySettings} onClose={() => setEditing(false)} />
       )}
@@ -302,7 +368,6 @@ export default function Pomodoro() {
 function SettingsPanel({ focusMin, breakMin, onApply, onClose }) {
   const [f, setF] = useState(focusMin);
   const [b, setB] = useState(breakMin);
-
   return (
     <div className="pomo-settings-panel">
       <div className="pomo-settings-row">
