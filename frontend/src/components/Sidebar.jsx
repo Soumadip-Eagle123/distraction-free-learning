@@ -1,23 +1,11 @@
 import { useEffect, useState } from "react";
 import { getProgress } from "../api";
 
-function Sidebar({ courses, setCurrent, current, userEmail, onLogout }) {
-  const [progressMap, setProgressMap] = useState({});
+function Sidebar({ courses, setCurrent, current, progressMap, userEmail, onLogout }) {
   const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
-    const fetchProgress = async () => {
-      let map = {};
-      for (let course of courses) {
-        for (let video of course.videos) {
-          const res = await getProgress(video.id);
-          map[video.id] = res.data;
-        }
-      }
-      setProgressMap(map);
-    };
     if (courses.length) {
-      fetchProgress();
       const initial = {};
       courses.forEach((c, i) => { initial[i] = i === 0; });
       setExpanded(initial);
@@ -31,8 +19,7 @@ function Sidebar({ courses, setCurrent, current, userEmail, onLogout }) {
   const getCourseStats = (course) => {
     const total = course.videos.length;
     const done = course.videos.filter(v => progressMap[v.id]?.done).length;
-    const revised = course.videos.filter(v => progressMap[v.id]?.revised).length;
-    return { total, done, revised, pct: total ? Math.round((done / total) * 100) : 0 };
+    return { total, done, pct: total ? Math.round((done / total) * 100) : 0 };
   };
 
   const totalVideos = courses.reduce((acc, c) => acc + c.videos.length, 0);
@@ -140,9 +127,7 @@ function Sidebar({ courses, setCurrent, current, userEmail, onLogout }) {
       {/* User Footer */}
       <div className="sidebar-footer">
         <div className="user-info">
-          <div className="user-avatar">
-            {userEmail?.[0]?.toUpperCase()}
-          </div>
+          <div className="user-avatar">{userEmail?.[0]?.toUpperCase()}</div>
           <span className="user-email">{userEmail}</span>
         </div>
         <button className="logout-btn" onClick={onLogout} title="Sign out">
@@ -155,4 +140,5 @@ function Sidebar({ courses, setCurrent, current, userEmail, onLogout }) {
   );
 }
 
+import { useEffect, useState } from "react";
 export default Sidebar;
