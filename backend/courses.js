@@ -214,6 +214,30 @@ const courses = [
     ].map(v => ({ id: extractId(v), url: v }))
   },
   {
+    name: "Data Structures and Algo",
+    videos: [
+      "https://www.youtube.com/watch?v=2h433OItQiA",
+      "https://www.youtube.com/watch?v=7P0qxxEy2-w",
+      "https://www.youtube.com/watch?v=_71ENYohRiE",
+      "https://www.youtube.com/watch?v=Dt6gzsNrghQ",
+      "https://www.youtube.com/watch?v=QdMUBiTC2bM",
+      "https://www.youtube.com/watch?v=TDjuWLwDPLQ",
+      "https://www.youtube.com/watch?v=eeUUFDN0yyI",
+      "https://www.youtube.com/watch?v=jxTyXvCNkL4",
+      "https://www.youtube.com/watch?v=h30dpA8_rsQ",
+      "https://www.youtube.com/watch?v=BLE6FwwmlUQ",
+      "https://www.youtube.com/watch?v=NIqTEUeBXGE",
+      "https://www.youtube.com/watch?v=_et0UKwhozU",
+      "https://www.youtube.com/watch?v=GLTR39VIAdc",
+      "https://www.youtube.com/watch?v=cGFPyhGzVY4",
+      "https://www.youtube.com/watch?v=HBON-ooIygo",
+      "https://www.youtube.com/watch?v=RxAPGNpb6cc",
+      "https://www.youtube.com/watch?v=Gl9u9LRXpMY",
+      "https://www.youtube.com/watch?v=HiT28-kHW3A",
+      "https://www.youtube.com/watch?v=kZAdzQlkpk4",
+    ]
+  },
+  {
     name: "System Design",
     videos: [
       "https://www.youtube.com/watch?v=43-X22tdxiI",
