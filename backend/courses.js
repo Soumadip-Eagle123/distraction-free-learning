@@ -11,6 +11,58 @@ const courses = [
     ].map(v => ({ id: extractId(v), url: v }))
   },
   {
+    name: "Multithreading",
+    videos: [
+      "https://www.youtube.com/watch?v=091vJWjl1A4",
+      "https://www.youtube.com/watch?v=OxXhqOJ-o30",
+      "https://www.youtube.com/watch?v=H7wi8n3cUx0",
+      "https://www.youtube.com/watch?v=3N5Js9k3tm4",
+      "https://www.youtube.com/watch?v=Ljqs8kUJKZs",
+      "https://www.youtube.com/watch?v=7MSazrWWV8g",
+      "https://www.youtube.com/watch?v=ge6_41ZRr_w",
+      "https://www.youtube.com/watch?v=ay5ynKnI9vc",
+      "https://www.youtube.com/watch?v=Iv5cP97OXlA",
+      "https://www.youtube.com/watch?v=ShwECPIpkhY",
+      "https://www.youtube.com/watch?v=Ee42spqUzbE",
+      "https://www.youtube.com/watch?v=mr9gkYUQjCI",
+      "https://www.youtube.com/watch?v=KmqmoEhyFtM",
+      "https://www.youtube.com/watch?v=-i5Pb3rCIkc",
+      "https://www.youtube.com/watch?v=3HE8D9g9QNE",
+      "https://www.youtube.com/watch?v=ip68xxgffC8",
+      "https://www.youtube.com/watch?v=2GMgETsrfZ8",
+      "https://www.youtube.com/watch?v=2jAPHlAK1Z0",
+      "https://www.youtube.com/watch?v=JoYFkYqE8S0",
+      "https://www.youtube.com/watch?v=WDn_Bax0UFo",
+      "https://www.youtube.com/watch?v=IcvAVzsq_Ng"
+    ].map(v => ({ id: extractId(v), url: v }))
+  },
+  {
+    name: "Collections",
+    videos: [
+      "https://www.youtube.com/watch?v=091vJWjl1A4",
+      "https://www.youtube.com/watch?v=OxXhqOJ-o30",
+      "https://www.youtube.com/watch?v=H7wi8n3cUx0",
+      "https://www.youtube.com/watch?v=3N5Js9k3tm4",
+      "https://www.youtube.com/watch?v=Ljqs8kUJKZs",
+      "https://www.youtube.com/watch?v=7MSazrWWV8g",
+      "https://www.youtube.com/watch?v=ge6_41ZRr_w",
+      "https://www.youtube.com/watch?v=ay5ynKnI9vc",
+      "https://www.youtube.com/watch?v=Iv5cP97OXlA",
+      "https://www.youtube.com/watch?v=ShwECPIpkhY",
+      "https://www.youtube.com/watch?v=Ee42spqUzbE",
+      "https://www.youtube.com/watch?v=mr9gkYUQjCI",
+      "https://www.youtube.com/watch?v=KmqmoEhyFtM",
+      "https://www.youtube.com/watch?v=-i5Pb3rCIkc",
+      "https://www.youtube.com/watch?v=3HE8D9g9QNE",
+      "https://www.youtube.com/watch?v=ip68xxgffC8",
+      "https://www.youtube.com/watch?v=2GMgETsrfZ8",
+      "https://www.youtube.com/watch?v=2jAPHlAK1Z0",
+      "https://www.youtube.com/watch?v=JoYFkYqE8S0",
+      "https://www.youtube.com/watch?v=WDn_Bax0UFo",
+      "https://www.youtube.com/watch?v=IcvAVzsq_Ng"
+    ].map(v => ({ id: extractId(v), url: v }))
+  },
+  {
     name: "Git/GitHub",
     videos: [
       "https://www.youtube.com/watch?v=-3SMW-3Z4OM",
@@ -61,32 +113,6 @@ const courses = [
       "https://www.youtube.com/watch?v=ZRVhTrhcwwA",
       "https://www.youtube.com/watch?v=QHKBC2YkdwA",
       "https://www.youtube.com/watch?v=D5MV7epXRnI"
-    ].map(v => ({ id: extractId(v), url: v }))
-  },
-  {
-    name: "Multithreading",
-    videos: [
-      "https://www.youtube.com/watch?v=091vJWjl1A4",
-      "https://www.youtube.com/watch?v=OxXhqOJ-o30",
-      "https://www.youtube.com/watch?v=H7wi8n3cUx0",
-      "https://www.youtube.com/watch?v=3N5Js9k3tm4",
-      "https://www.youtube.com/watch?v=Ljqs8kUJKZs",
-      "https://www.youtube.com/watch?v=7MSazrWWV8g",
-      "https://www.youtube.com/watch?v=ge6_41ZRr_w",
-      "https://www.youtube.com/watch?v=ay5ynKnI9vc",
-      "https://www.youtube.com/watch?v=Iv5cP97OXlA",
-      "https://www.youtube.com/watch?v=ShwECPIpkhY",
-      "https://www.youtube.com/watch?v=Ee42spqUzbE",
-      "https://www.youtube.com/watch?v=mr9gkYUQjCI",
-      "https://www.youtube.com/watch?v=KmqmoEhyFtM",
-      "https://www.youtube.com/watch?v=-i5Pb3rCIkc",
-      "https://www.youtube.com/watch?v=3HE8D9g9QNE",
-      "https://www.youtube.com/watch?v=ip68xxgffC8",
-      "https://www.youtube.com/watch?v=2GMgETsrfZ8",
-      "https://www.youtube.com/watch?v=2jAPHlAK1Z0",
-      "https://www.youtube.com/watch?v=JoYFkYqE8S0",
-      "https://www.youtube.com/watch?v=WDn_Bax0UFo",
-      "https://www.youtube.com/watch?v=IcvAVzsq_Ng"
     ].map(v => ({ id: extractId(v), url: v }))
   },
   {
