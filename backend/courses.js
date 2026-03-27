@@ -261,7 +261,7 @@ const courses = [
       "https://www.youtube.com/watch?v=Gl9u9LRXpMY",
       "https://www.youtube.com/watch?v=HiT28-kHW3A",
       "https://www.youtube.com/watch?v=kZAdzQlkpk4",
-    ]
+    ].map(v => ({ id: extractId(v), url: v }))
   },
   {
     name: "System Design",
