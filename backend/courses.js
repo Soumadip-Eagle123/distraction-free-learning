@@ -37,31 +37,32 @@ const courses = [
     ].map(v => ({ id: extractId(v), url: v }))
   },
   {
-    name: "Collections",
-    videos: [
-      "https://www.youtube.com/watch?v=091vJWjl1A4",
-      "https://www.youtube.com/watch?v=OxXhqOJ-o30",
-      "https://www.youtube.com/watch?v=H7wi8n3cUx0",
-      "https://www.youtube.com/watch?v=3N5Js9k3tm4",
-      "https://www.youtube.com/watch?v=Ljqs8kUJKZs",
-      "https://www.youtube.com/watch?v=7MSazrWWV8g",
-      "https://www.youtube.com/watch?v=ge6_41ZRr_w",
-      "https://www.youtube.com/watch?v=ay5ynKnI9vc",
-      "https://www.youtube.com/watch?v=Iv5cP97OXlA",
-      "https://www.youtube.com/watch?v=ShwECPIpkhY",
-      "https://www.youtube.com/watch?v=Ee42spqUzbE",
-      "https://www.youtube.com/watch?v=mr9gkYUQjCI",
-      "https://www.youtube.com/watch?v=KmqmoEhyFtM",
-      "https://www.youtube.com/watch?v=-i5Pb3rCIkc",
-      "https://www.youtube.com/watch?v=3HE8D9g9QNE",
-      "https://www.youtube.com/watch?v=ip68xxgffC8",
-      "https://www.youtube.com/watch?v=2GMgETsrfZ8",
-      "https://www.youtube.com/watch?v=2jAPHlAK1Z0",
-      "https://www.youtube.com/watch?v=JoYFkYqE8S0",
-      "https://www.youtube.com/watch?v=WDn_Bax0UFo",
-      "https://www.youtube.com/watch?v=IcvAVzsq_Ng"
-    ].map(v => ({ id: extractId(v), url: v }))
-  },
+  name: "Collections",
+  videos: [
+    "https://www.youtube.com/watch?v=TcrVCIgVq10",
+    "https://www.youtube.com/watch?v=_8-PxGSwnFE",
+    "https://www.youtube.com/watch?v=XgF7XNLNf38",
+    "https://www.youtube.com/watch?v=ErMDGVa92II",
+    "https://www.youtube.com/watch?v=Y1Na2mkjL7c",
+    "https://www.youtube.com/watch?v=-wzibcwDtQA",
+    "https://www.youtube.com/watch?v=sDwzrx-IiN4",
+    "https://www.youtube.com/watch?v=tNRLAEuKn1w",
+    "https://www.youtube.com/watch?v=Qd-3Xj8h0EE",
+    "https://www.youtube.com/watch?v=0ENw6ICw990",
+    "https://www.youtube.com/watch?v=_dI1utdN3wU",
+    "https://www.youtube.com/watch?v=FDqmO5oM8Ms",
+    "https://www.youtube.com/watch?v=b8bBkPS_9X0",
+    "https://www.youtube.com/watch?v=M8i_e584M7A",
+    "https://www.youtube.com/watch?v=xw40xQqa8cw",
+    "https://www.youtube.com/watch?v=Znv5cgb9-vM",
+    "https://www.youtube.com/watch?v=sF6C6OTRt78",
+    "https://www.youtube.com/watch?v=MUzCCdrudvI",
+    "https://www.youtube.com/watch?v=E10Q6-nWO9g",
+    "https://www.youtube.com/watch?v=lgw2YqRtjRE",
+    "https://www.youtube.com/watch?v=plcZvG_TeAk",
+    "https://www.youtube.com/watch?v=-bG4jmQSMPQ"
+  ].map(v => ({ id: extractId(v), url: v }))
+},
   {
     name: "Git/GitHub",
     videos: [
